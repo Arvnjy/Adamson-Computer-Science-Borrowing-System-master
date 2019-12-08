@@ -31,9 +31,28 @@ namespace CSBorrowingSystem
 
             
             InitializeComponent();
-            FillDataGrid();
+            BindGrid();
         }
 
+        public void BindGrid() //fill data grid
+        {
+            string _ConnectionString = ConfigurationManager.ConnectionStrings["ConnectionString1"].ConnectionString;
+            SqlCeConnection _Conn = new SqlCeConnection(_ConnectionString);
+
+            // Open the Database Connection
+            _Conn.Open();
+
+            SqlCeDataAdapter _Adapter = new SqlCeDataAdapter("Select * from Items", _Conn);
+
+            DataSet _Bind = new DataSet();
+            _Adapter.Fill(_Bind, "MyDataBinding");
+
+            DtgEquipment.DataContext = _Bind;
+
+            // Close the Database Connection
+            _Conn.Close();
+
+        }
         private void btnProceed_Click(object sender, RoutedEventArgs e)
         {
              SqlCeConnection conn = DBUtils.GetDBConnection();
@@ -63,7 +82,7 @@ namespace CSBorrowingSystem
                                 cmd1.Parameters.AddWithValue("@SubjectName", txtSubject.Text);
                                 cmd1.Parameters.AddWithValue("@Professor", txtProf.Text);     //not in the Borrow DB
                                 cmd1.Parameters.AddWithValue("@GroupNumber", txtGroupNo.Text);   // not in the Borrow DB
-                                cmd1.Parameters.AddWithValue("@ItemCode", item); //not in the Borrow DB
+                                cmd1.Parameters.AddWithValue("@ItemCode", item); 
                                 cmd1.Parameters.AddWithValue("@DateBorrowed", DateTime.Now.Date.ToString("MM/dd/yyyy"));  
                                 
                        
@@ -88,20 +107,7 @@ namespace CSBorrowingSystem
             conn.Close();
         }
 
-        private void FillDataGrid()
-        {
-            string ConString = ConfigurationManager.ConnectionStrings["ConString"].ConnectionString;
-            string CmdString = string.Empty;
-            using (SqlConnection con = new SqlConnection(ConString))
-            {
-                CmdString = "SELECT ItemCode, ItemName, ItemType, QuantityOnStock, Brand FROM Items";
-                SqlCommand cmd = new SqlCommand(CmdString, con);
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable("Employee");
-                sda.Fill(dt);
-                DtgEquipment.ItemsSource = dt.DefaultView;
-            }
-        }
+
 
         public class checkedBoxIte    //Datagrid checkbox
         {
